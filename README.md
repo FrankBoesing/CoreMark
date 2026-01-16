@@ -13,6 +13,7 @@ executing state machines.
 | Adafruit Metro M4 (200MHz overclock, 'dragons' optimization) | 536.35   |
 | Adafruit Metro M4 (180MHz overclock, faster optimizations) | 458.19   |
 | Teensy 3.6             | 440.72   |
+| ESP32-C3               | 409.72   |
 | Sparkfun ESP32 Thing   | 351.33   |
 | Adafruit HUZZAH 32     | 351.35   |
 | Teensy 3.5             | 265.50   |
