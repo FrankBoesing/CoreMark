@@ -10,8 +10,8 @@ extern "C" int coremark_main(void);
 void setup()
 {
 	Serial.begin(9600);
-	while (!Serial) ; // wait for Arduino Serial Monitor
-	delay(500);
+	//while (!Serial) ; // wait for Arduino Serial Monitor
+	delay(3000);
 
 	Serial.println("CoreMark Performance Benchmark");
 	Serial.println();
@@ -42,9 +42,9 @@ void loop()
 #if MULTITHREAD > 1
 
 /* ==========================================================================
- *  RP2040 IMPLEMENTATION  (UNVERÄNDERT)
+ *  RP2040 IMPLEMENTATION
  * ========================================================================== */
-#if defined(ARDUINO_ARCH_RP2040)
+#if (USE_PICO)
 
 volatile bool core1_go   = false;
 volatile bool core1_done = false;
@@ -93,9 +93,9 @@ ee_u8 core_stop_parallel(core_results *res) {
 #endif /* ARDUINO_ARCH_RP2040 */
 
 /* ==========================================================================
- *  ESP32 IMPLEMENTATION  (RP2040-ANALOG)
+ *  FREERTOS IMPLEMENTATION  (RP2040-ANALOG)
  * ========================================================================== */
-#if defined(ARDUINO_ARCH_ESP32)
+#if USE_FREERTOS
 
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>

@@ -141,7 +141,7 @@ void portable_free(void *p) {
 }
 #endif
 
-#if (MULTITHREAD > 1) && defined(ARDUINO_ARCH_RP2040)
+#if (MULTITHREAD > 1) && (USE_PICO > 0)
 /* RP2040/RP2350 dual-core parallel execution */
 extern void start_on_core1(void* (*func)(void*), void* arg);
 extern void wait_for_core1(void);
@@ -170,7 +170,7 @@ ee_u8 core_stop_parallel(core_results *res) {
 	}
 	return 0;
 }
-#elif (MULTITHREAD > 1) && (defined(ARDUINO_ARCH_ESP32) || defined(CONFIG_IDF_TARGET_ESP32))
+#elif (MULTITHREAD > 1) && (USE_FREERTOS > 0)
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 #include <freertos/semphr.h>

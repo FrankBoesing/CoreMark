@@ -155,28 +155,48 @@ typedef ee_u32 CORE_TICKS;
 	It is valid to have a different implementation of <core_start_parallel> and <core_end_parallel> in <core_portme.c>,
 	to fit a particular architecture.
 */
-#if CONFIG_IDF_TARGET_ESP32C3
-#include <esp_attr.h>
-#define MULTITHREAD 1
-#define PARALLEL_METHOD "ESP32-C3 RISCV FreeRTOS"
-#define USE_PTHREAD 0
-#define USE_FORK 0
-#define USE_SOCKET 0
-#elif CONFIG_IDF_TARGET_ESP32
-#include <esp_attr.h>
-#define MULTITHREAD 2
-#define PARALLEL_METHOD "ESP32 XTENSA FreeRTOS"
-#define USE_PTHREAD 0
-#define USE_FORK 0
-#define USE_SOCKET 0
-#elif ARDUINO_ARCH_RP2040
+
+#if __has_include("FreeRTOS.h") || __has_include("freertos/FreeRTOS.h") || defined(ARDUINO_ARCH_ESP32)
+ /* ESP32 etc... */
+#define PARALLEL_METHOD "FreeRTOS"
+
 #ifndef MULTITHREAD
-#define MULTITHREAD 2  /* RP2350 dual-core */
-#define PARALLEL_METHOD "RP2350 Dual-Core"
+#define MULTITHREAD 2
+#endif
+
+#define USE_FREERTOS 1
+#define USE_PICO 0
 #define USE_PTHREAD 0
 #define USE_FORK 0
 #define USE_SOCKET 0
+
+#elif defined(ARDUINO_ARCH_RP2040)
+ /* RP2040 dual-core  Pico Multitasking */
+#define PARALLEL_METHOD "RP2040 Dual-Core"
+
+#ifndef MULTITHREAD
+#define MULTITHREAD 2
 #endif
+
+#define USE_FREERTOS 0
+#define USE_PICO 1
+#define USE_PTHREAD 0
+#define USE_FORK 0
+#define USE_SOCKET 0
+
+// add more here...
+
+#else
+// no Multithread
+
+#ifndef MULTITHREAD
+#define MULTITHREAD 1
+#endif
+
+#define USE_PTHREAD 0
+#define USE_FORK 0
+#define USE_SOCKET 0
+
 #endif
 
 /* Configuration : MAIN_HAS_NOARGC
