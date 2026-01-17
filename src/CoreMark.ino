@@ -56,13 +56,17 @@ void loop()
 }
 
 void setup1() {
+#ifdef LED_BUILTIN
   pinMode(LED_BUILTIN, OUTPUT);
+#endif
 }
 
 void loop1() {
   if (core1_go && !core1_done) {
     if (core1_func != NULL) {
+#ifdef LED_BUILTIN
       digitalWrite(LED_BUILTIN, HIGH);
+#endif
       core1_func((void*)core1_func_arg);
       core1_func = NULL;
     }
@@ -114,4 +118,4 @@ extern "C" int ee_printf(const char *format, ...)
 extern "C" uint32_t Arduino_millis(void)
 {
 	return millis();
-} 
+}
