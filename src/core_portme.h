@@ -76,7 +76,7 @@ Original Author: Shay Gal-on
 */
 #ifndef COMPILER_VERSION
  #ifdef __GNUC__
- #define COMPILER_VERSION "GCC"__VERSION__
+ #define COMPILER_VERSION "GCC" __VERSION__
  #else
  #define COMPILER_VERSION "Please put compiler version here (e.g. gcc 4.1)"
  #endif
@@ -102,7 +102,9 @@ typedef uint8_t  ee_u8;
 typedef uint32_t ee_u32;
 typedef uintptr_t ee_ptr_int;
 typedef size_t ee_size_t;
+#ifndef NULL
 #define NULL ((void *)0)
+#endif
 /* align_mem :
 	This macro is used to align an offset to point to a 32b value. It is used in the Matrix algorithm to initialize the input memory blocks.
 */
@@ -160,7 +162,14 @@ typedef ee_u32 CORE_TICKS;
 #define USE_PTHREAD 0
 #define USE_FORK 0
 #define USE_SOCKET 0
-#else
+#elif CONFIG_IDF_TARGET_ESP32
+#include <esp_attr.h>
+#define MULTITHREAD 2
+#define PARALLEL_METHOD "ESP32 XTENSA FreeRTOS"
+#define USE_PTHREAD 0
+#define USE_FORK 0
+#define USE_SOCKET 0
+#elif ARDUINO_ARCH_RP2040
 #ifndef MULTITHREAD
 #define MULTITHREAD 2  /* RP2350 dual-core */
 #define PARALLEL_METHOD "RP2350 Dual-Core"
@@ -218,6 +227,11 @@ void portable_fini(core_portable *p);
 #endif
 #endif
 
-int ee_printf(const char *fmt, ...);
+#ifdef __cplusplus
+extern "C" {int ee_printf(const char *fmt, ...);}
+#else
+extern int ee_printf(const char *fmt, ...);
+#endif
+
 
 #endif /* CORE_PORTME_H */

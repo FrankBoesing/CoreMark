@@ -39,7 +39,7 @@ extern uint32_t Arduino_millis();
 	volatile ee_s32 seed5_volatile=0;
 /* Porting : Timing functions
 	How to capture time and convert to seconds must be ported to whatever is supported by the platform.
-	e.g. Read value from on board RTC, read value from cpu clock cycles performance counter etc. 
+	e.g. Read value from on board RTC, read value from cpu clock cycles performance counter etc.
 	Sample implementation for standard time.h and windows.h definitions included.
 */
 CORETIMETYPE barebones_clock() {
@@ -66,28 +66,28 @@ static CORETIMETYPE start_time_val, stop_time_val;
 /* Function : start_time
 	This function will be called right before starting the timed portion of the benchmark.
 
-	Implementation may be capturing a system timer (as implemented in the example code) 
+	Implementation may be capturing a system timer (as implemented in the example code)
 	or zeroing some system parameters - e.g. setting the cpu clocks cycles to 0.
 */
 void start_time(void) {
-	GETMYTIME(&start_time_val );      
+	GETMYTIME(&start_time_val );
 }
 /* Function : stop_time
 	This function will be called right after ending the timed portion of the benchmark.
 
-	Implementation may be capturing a system timer (as implemented in the example code) 
+	Implementation may be capturing a system timer (as implemented in the example code)
 	or other system parameters - e.g. reading the current value of cpu cycles counter.
 */
 void stop_time(void) {
-	GETMYTIME(&stop_time_val );      
+	GETMYTIME(&stop_time_val );
 }
 /* Function : get_time
 	Return an abstract "ticks" number that signifies time on the system.
-	
+
 	Actual value returned may be cpu cycles, milliseconds or any other value,
 	as long as it can be converted to seconds by <time_in_secs>.
 	This methodology is taken to accomodate any hardware or simulated platform.
-	The sample implementation returns millisecs by default, 
+	The sample implementation returns millisecs by default,
 	and the resolution is controlled by <TIMER_RES_DIVIDER>
 */
 CORE_TICKS get_time(void) {
@@ -108,7 +108,7 @@ secs_ret time_in_secs(CORE_TICKS ticks) {
 ee_u32 default_num_contexts=MULTITHREAD;
 
 /* Function : portable_init
-	Target specific initialization code 
+	Target specific initialization code
 	Test for some common mistakes.
 */
 void portable_init(core_portable *p, int *argc, char *argv[])
@@ -168,6 +168,78 @@ ee_u8 core_stop_parallel(core_results *res) {
 		/* Wait for core 1 to finish */
 		wait_for_core1();
 	}
+	return 0;
+}
+#elif (MULTITHREAD > 1) && (defined(ARDUINO_ARCH_ESP32) || defined(CONFIG_IDF_TARGET_ESP32))
+#include <freertos/FreeRTOS.h>
+#include <freertos/task.h>
+#include <freertos/semphr.h>
+#include <esp_task_wdt.h>
+
+/* Semaphore-based synchronization to ensure tasks start together and report when done */
+static TaskHandle_t core_tasks[2] = {NULL, NULL};
+static SemaphoreHandle_t start_sem = NULL;
+static SemaphoreHandle_t done_sem = NULL;
+static int created_count = 0;
+
+/* Task wrapper for cores */
+static void core_task_fn(void *arg) {
+	core_results *res = (core_results *)arg;
+
+	/* wait until main gives the start semaphore */
+	xSemaphoreTake(start_sem, portMAX_DELAY);
+
+	iterate(res);
+
+	/* signal completion to main */
+	xSemaphoreGive(done_sem);
+
+	vTaskDelete(NULL);
+}
+
+ee_u8 core_start_parallel(core_results *res) {
+	/* create semaphores once */
+	if (start_sem == NULL) {
+		start_sem = xSemaphoreCreateCounting(MULTITHREAD, 0);
+	}
+	if (done_sem == NULL) {
+		done_sem = xSemaphoreCreateCounting(MULTITHREAD, 0);
+	}
+
+	/* create a task for this context and pin to the next core core index is created_count (0 or 1) */
+	int idx = created_count;
+	if (idx < MULTITHREAD) {
+		char name[16];
+		if (idx == 0) snprintf(name, sizeof(name), "core0_iter");
+		else snprintf(name, sizeof(name), "core1_iter");
+		xTaskCreatePinnedToCore(
+			core_task_fn,
+			name,
+			4096,
+			res,
+			1,
+			&core_tasks[idx],
+			idx /* pin to core idx */
+		);
+		created_count++;
+	}
+
+	/* if we've created all expected contexts, release the start semaphore for each */
+	esp_task_wdt_deinit();
+	if (created_count == (int)default_num_contexts) {
+		for (int i = 0; i < created_count; i++) {
+			xSemaphoreGive(start_sem);
+		}
+		/* reset for next run */
+		created_count = 0;
+	}
+
+	return 0;
+}
+
+ee_u8 core_stop_parallel(core_results *res) {
+	/* wait until one of the tasks reports completion */
+	xSemaphoreTake(done_sem, portMAX_DELAY);
 	return 0;
 }
 #endif
