@@ -15,7 +15,10 @@ ESP32 with FreeRTOS uses preemptive multitasking, adding context-switch overhead
 | Board                  | CoreMark | GCC switches | Cores used |
 | ---------------------- | :------: | :------: | :------: |
 | Teensy 4.0             | 2313.57  | n/a | 1 |
+| ESP32-P4 (360MHz)      | 2078.03  | -O3 -fjump-tables -ftree-switch-conversion | 2 |
 | RP2350 Dual Core (276MHz overclock) | 1437.00  | -O3 | 2 |
+| RP2350 Dual Core (276MHz overclock) | 1437.00  | -O3 | 2 |
+| ESP32-P4 (360MHz)      | 1048.99  | -O3 -fjump-tables -ftree-switch-conversion | 1 |
 | RP2350 Dual Core (200MHz overclock) | 1041.00  | -O3 | 2 |
 | ESP32 WROOM 32 xtensa 240MHz | 1032.62 | -O3 -fjump-tables -ftree-switch-conversion | 2 |
 | RP2350 Dual Core (150MHz) | 600.00   |  n/a  | 2 |
