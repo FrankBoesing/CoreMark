@@ -7,7 +7,7 @@ executing state machines.
 * RP2350 (SMP) kooperative Scheduling
 * FreeRTOS preemtpive Scheduling.
 
-The RP2350 runs bare-metal tasks on each core with no scheduler, maximizing per-core throughput for benchmarks like CoreMark.
+The RP2350 runs bare-metal tasks on each core with no scheduler, maximizing per-core throughput.
 
 ESP32 with FreeRTOS uses preemptive multitasking, adding context-switch overhead that slightly lowers peak performance but improves responsiveness for concurrent tasks.
 
@@ -41,3 +41,4 @@ ESP32 with FreeRTOS uses preemptive multitasking, adding context-switch overhead
 
 (larger numbers are better)
 
+Note: Some day, the code should be reviewed. (Esp. if the cores are running with different speed (MHz) - it would be better to stop running when the first core is ready - not both - to prevent an idling core.)
