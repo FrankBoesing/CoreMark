@@ -30,6 +30,7 @@ ESP32 with FreeRTOS uses preemptive multitasking, adding context-switch overhead
 | Sparkfun ESP32 Thing   | 351.33   |  n/a | 1 |
 | Adafruit HUZZAH 32     | 351.35   |  n/a | 1 |
 | Teensy 3.5             | 265.50   |  n/a | 1 |
+| RP 2040                | 239.85   | -O3 | 1 |
 | Teensy 3.2 (96MHz overclock)            | 218.26   | "faster" optimizations | 1 |
 | Adafruit Metro M4 (120MHz) | 214.85   | "smaller code" | 1 |
 | Teensy 3.2 (72MHz)            | 168.62   |  n/a | 1 |
