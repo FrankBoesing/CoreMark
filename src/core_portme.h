@@ -193,6 +193,8 @@ typedef ee_u32 CORE_TICKS;
 #define MULTITHREAD 1
 #endif
 
+#define USE_FREERTOS 0
+#define USE_PICO 0
 #define USE_PTHREAD 0
 #define USE_FORK 0
 #define USE_SOCKET 0
