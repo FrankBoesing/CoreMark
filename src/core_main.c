@@ -163,6 +163,11 @@ MAIN_RETURN_TYPE main(int argc, char *argv[]) {
 #else
 #error "Please define a way to initialize a memory block."
 #endif
+
+#if USE_FREERTOS
+	esp_task_wdt_deinit(); //disable thread watchdog - will not be fed.
+#endif
+
 	/* Data init */
 	/* Find out how space much we have based on number of algorithms */
 	for (i=0; i<NUM_ALGORITHMS; i++) {
@@ -235,7 +240,7 @@ MAIN_RETURN_TYPE main(int argc, char *argv[]) {
 	seedcrc=crc16(results[0].seed2,seedcrc);
 	seedcrc=crc16(results[0].seed3,seedcrc);
 	seedcrc=crc16(results[0].size,seedcrc);
-	
+
 	switch (seedcrc) { /* test known output for common seeds */
 		case 0x8a02: /* seed1=0, seed2=0, seed3=0x66, size 2000 per algorithm */
 			known_id=0;
@@ -264,7 +269,7 @@ MAIN_RETURN_TYPE main(int argc, char *argv[]) {
 	if (known_id>=0) {
 		for (i=0 ; i<default_num_contexts; i++) {
 			results[i].err=0;
-			if ((results[i].execs & ID_LIST) && 
+			if ((results[i].execs & ID_LIST) &&
 				(results[i].crclist!=list_known_crc[known_id])) {
 				ee_printf("[%u]ERROR! list crc 0x%04x - should be 0x%04x\n",i,results[i].crclist,list_known_crc[known_id]);
 				results[i].err++;
@@ -290,7 +295,7 @@ MAIN_RETURN_TYPE main(int argc, char *argv[]) {
 	ee_printf("Total time (secs): %f\n",time_in_secs(total_time));
 	if (time_in_secs(total_time) > 0)
 		ee_printf("Iterations/Sec   : %f\n",default_num_contexts*results[0].iterations/time_in_secs(total_time));
-#else 
+#else
 	ee_printf("Total time (secs): %d\n",time_in_secs(total_time));
 	if (time_in_secs(total_time) > 0)
 		ee_printf("Iterations/Sec   : %d\n",default_num_contexts*results[0].iterations/time_in_secs(total_time));
@@ -310,15 +315,15 @@ MAIN_RETURN_TYPE main(int argc, char *argv[]) {
 	/* output for verification */
 	ee_printf("seedcrc          : 0x%04x\n",seedcrc);
 	if (results[0].execs & ID_LIST)
-		for (i=0 ; i<default_num_contexts; i++) 
+		for (i=0 ; i<default_num_contexts; i++)
 			ee_printf("[%d]crclist       : 0x%04x\n",i,results[i].crclist);
-	if (results[0].execs & ID_MATRIX) 
-		for (i=0 ; i<default_num_contexts; i++) 
+	if (results[0].execs & ID_MATRIX)
+		for (i=0 ; i<default_num_contexts; i++)
 			ee_printf("[%d]crcmatrix     : 0x%04x\n",i,results[i].crcmatrix);
 	if (results[0].execs & ID_STATE)
-		for (i=0 ; i<default_num_contexts; i++) 
+		for (i=0 ; i<default_num_contexts; i++)
 			ee_printf("[%d]crcstate      : 0x%04x\n",i,results[i].crcstate);
-	for (i=0 ; i<default_num_contexts; i++) 
+	for (i=0 ; i<default_num_contexts; i++)
 		ee_printf("[%d]crcfinal      : 0x%04x\n",i,results[i].crc);
 	if (total_errors==0) {
 		ee_printf("Correct operation validated. See README.md for run and reporting rules.\n");
@@ -344,11 +349,11 @@ MAIN_RETURN_TYPE main(int argc, char *argv[]) {
 		ee_printf("Cannot validate operation for these seed values, please compare with results on a known platform.\n");
 
 #if (MEM_METHOD==MEM_MALLOC)
-	for (i=0 ; i<MULTITHREAD; i++) 
+	for (i=0 ; i<MULTITHREAD; i++)
 		portable_free(results[i].memblock[0]);
 #endif
 	/* And last call any target specific code for finalizing */
 	portable_fini(&(results[0].port));
 
-	return MAIN_RETURN_VAL;	
+	return MAIN_RETURN_VAL;
 }

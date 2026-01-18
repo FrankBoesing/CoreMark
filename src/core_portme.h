@@ -158,6 +158,11 @@ typedef ee_u32 CORE_TICKS;
 
 #if __has_include("FreeRTOS.h") || __has_include("freertos/FreeRTOS.h") || defined(ARDUINO_ARCH_ESP32)
  /* ESP32 etc... */
+#include <freertos/FreeRTOS.h>
+#include <freertos/task.h>
+#include <freertos/semphr.h>
+#include <esp_task_wdt.h>
+
 #define PARALLEL_METHOD "FreeRTOS"
 
 #ifndef MULTITHREAD
@@ -193,6 +198,8 @@ typedef ee_u32 CORE_TICKS;
 #define MULTITHREAD 1
 #endif
 
+#define USE_FREERTOS 0
+#define USE_PICO 0
 #define USE_PTHREAD 0
 #define USE_FORK 0
 #define USE_SOCKET 0

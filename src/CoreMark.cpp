@@ -2,6 +2,7 @@
 //   original CoreMark code: https://github.com/eembc/coremark
 #include <Arduino.h>
 #include <stdarg.h>
+#include "coremark.h"
 
 // A way to call the C-only coremark function from Arduino's C++ environment
 extern "C" int coremark_main(void);
@@ -24,6 +25,7 @@ void setup()
 
 
 	delay(250);
+
 	coremark_main(); // Run the benchmark  :-)
 }
 
@@ -36,8 +38,6 @@ void loop()
  *   - RP2040: Arduino-Pico loop1()-Modell
  *   - ESP32 : FreeRTOS Core-1 Loop (RP2040-analog)
  * -------------------------------------------------------------------------- */
-
-#include "coremark.h"
 
 #if MULTITHREAD > 1
 

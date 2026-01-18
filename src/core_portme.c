@@ -170,11 +170,8 @@ ee_u8 core_stop_parallel(core_results *res) {
 	}
 	return 0;
 }
+
 #elif (MULTITHREAD > 1) && (USE_FREERTOS > 0)
-#include <freertos/FreeRTOS.h>
-#include <freertos/task.h>
-#include <freertos/semphr.h>
-#include <esp_task_wdt.h>
 
 /* Semaphore-based synchronization to ensure tasks start together and report when done */
 static TaskHandle_t core_tasks[2] = {NULL, NULL};
@@ -225,7 +222,6 @@ ee_u8 core_start_parallel(core_results *res) {
 	}
 
 	/* if we've created all expected contexts, release the start semaphore for each */
-	esp_task_wdt_deinit();
 	if (created_count == (int)default_num_contexts) {
 		for (int i = 0; i < created_count; i++) {
 			xSemaphoreGive(start_sem);
